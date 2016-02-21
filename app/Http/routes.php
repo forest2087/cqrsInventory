@@ -15,6 +15,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::group(['prefix'=>'api/v1'], function() {
+    Route::resource('item', 'ItemController',
+        ['only' => ['index', 'store', 'show']]);
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes

@@ -24,7 +24,7 @@ class ItemQueryService {
     }
 
     public function get() {
-        $items = $this->getAllNotExpired();
+        $items = $this->getAll();
         $result = [];
         foreach ($items as $item) {
             if ($item['event']=='add') {
@@ -32,6 +32,13 @@ class ItemQueryService {
                 $result[$item['itemID']] = $item;
             } elseif ($item['event']=='remove') {
                 unset($result[$item['itemID']]);
+            }
+        }
+
+        //remove expired items
+        foreach($result as $key=>$item) {
+            if ($item->expire_at <= Carbon::now()) {
+                unset($result[$key]);
             }
         }
         return $result;

@@ -31,7 +31,6 @@ class ItemController extends Controller
     public function index()
     {
         $items = $this->itemQueryService->get();
-//        dd(gettype($items));
         return response()->json(['items'=> $items]);
     }
 
@@ -56,7 +55,8 @@ class ItemController extends Controller
      */
     public function show($id)
     {
-        //
+        $items = $this->itemQueryService->getAll();
+        return response()->json(['items'=> $items]);
     }
 
 }

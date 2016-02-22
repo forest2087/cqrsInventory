@@ -10,14 +10,30 @@ use App\Http\Controllers\Controller;
 use App\Services\ItemCommandService;
 use App\Services\ItemQueryService;
 
-
+/**
+ * Class ItemController
+ *
+ * @package App\Http\Controllers
+ */
 class ItemController extends Controller
 {
 
+    /**
+     * @var ItemCommandService
+     */
     protected $itemCommandService;
 
+    /**
+     * @var ItemQueryService
+     */
     protected $itemQueryService;
 
+    /**
+     * ItemController constructor.
+     *
+     * @param ItemCommandService $itemCommandService
+     * @param ItemQueryService   $itemQueryService
+     */
     public function __construct(ItemCommandService $itemCommandService, ItemQueryService $itemQueryService) {
         $this->itemCommandService = $itemCommandService;
         $this->itemQueryService = $itemQueryService;
@@ -48,7 +64,7 @@ class ItemController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * show all events
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response

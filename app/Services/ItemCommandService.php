@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
+
+/**
+ * Class ItemCommandService
+ *
+ * @package App\Services
+ */
 class ItemCommandService {
 
 
@@ -24,8 +30,16 @@ class ItemCommandService {
         $this->model = $model;
     }
 
+    /**
+     * store inventory events
+     *
+     * @param Request $request
+     *
+     * @return bool
+     * @throws \Exception
+     */
     function store(Request $request) {
-        $item = new $this->model;
+        $item = $this->model->newInstance();
         if (!$request->itemID) {
             $item->itemID = Uuid::generate();
         } else {

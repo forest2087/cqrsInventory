@@ -4,12 +4,15 @@ use App\Item;
 use App\Services\ItemQueryService;
 use Mockery as m;
 
+/**
+ * Class ItemQueryServiceTest
+ */
 class ItemQueryServiceTest extends TestCase
 {
 
 
     /**
-     * init some mock repositories
+     * setup
      */
     public function setUp()
     {
@@ -17,12 +20,20 @@ class ItemQueryServiceTest extends TestCase
 
     }
 
+    /**
+     * teardown
+     */
     public function tearDown()
     {
         parent::tearDown();
         m::close();
     }
 
+    /**
+     * @param $class
+     *
+     * @return m\MockInterface
+     */
     public function mock($class)
     {
         $mock = m::mock($class);
@@ -32,6 +43,9 @@ class ItemQueryServiceTest extends TestCase
         return $mock;
     }
 
+    /**
+     * test get all items
+     */
     public function test_get_all()
     {
 
@@ -45,6 +59,9 @@ class ItemQueryServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
+    /**
+     * test get all active items
+     */
     public function test_get()
     {
 

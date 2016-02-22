@@ -8,6 +8,11 @@ use App\Item;
 
 use Carbon\Carbon;
 
+/**
+ * Class ItemQueryService
+ *
+ * @package App\Services
+ */
 class ItemQueryService {
 
     /**
@@ -23,6 +28,10 @@ class ItemQueryService {
         $this->model = $model;
     }
 
+    /**
+     * return active items
+     * @return items
+     */
     public function get() {
         $items = $this->getAll();
         $result = [];
@@ -43,7 +52,10 @@ class ItemQueryService {
         return $result;
     }
 
-
+    /**
+     * get all items without filter
+     * @return items
+     */
     public function getAll() {
         return $this->model->orderBy('created_at')->get();
     }

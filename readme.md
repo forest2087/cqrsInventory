@@ -61,3 +61,7 @@ Queue should be implemented for store commands when scaling.
 Write locks should be implemented for read/write conflicts.
 
 Functional tests should be written for the controllers. 
+
+Phpunit.xml should be implemented for better configuration of the unit tests. 
+
+NoSql database can be used for better event sourcing. 

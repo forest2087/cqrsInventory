@@ -1,27 +1,63 @@
-# Laravel PHP Framework
+# CQRS Inventory Proof of Concept with Laravel and AngularJs
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+This app is a proof of concept of a simple inventory system designed with CQRS design pattern with event sourcing.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+ 
+# What it does: 
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+1. Add an item to the inventory:
+When I add a new item to the inventory
+Then inventory contains information about the newly added item, such as Label, Expiration, Type.
 
-## Official Documentation
+2. Take an item from the inventory by Label:
+When I took an item out from the inventory
+Then the item is no longer in the inventory
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+3. Notification that an item has been taken out:
+When I took an item out from the inventory
+Then there is a notification that an item has been taken out.
 
-## Contributing
+4. Notification that an item has expired:
+When an item expires
+Then there is a notification about the expired item.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
 
-## Security Vulnerabilities
+# Installation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+Clone repo.
 
-## License
+Copy .env.example to .env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+	composer update
+	
+	npm install
+	
+	gulp
+	
+	php artisan migrate:install  //database using sqlite file
+	
+	php artisan db:seed
+
+# Test
+
+	phpunit
+
+# Run
+
+	php artisan serve
+	
+	http://localhost:8000
+
+# To be improved
+
+Due to time constraint, this is an app with very simple back end api with no auth + angularjs frontend. 
+
+Repository and Interface should be implemented to abstract the database layer from the service logic layer for better extensibility. 
+
+OAuth/JWT or some sort of authentication should be implemented for security and third-party application access. 
+
+Queue should be implemented for store commands when scaling. 
+
+Write locks should be implemented for read/write conflicts.
+
+Functional tests should be written for the controllers. 

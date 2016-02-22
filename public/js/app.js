@@ -9,56 +9,57 @@ InventoryController.$inject = ['$scope', '$http', '$timeout', 'toaster'];
 
 function InventoryController($scope, $http, $timeout, toaster) {
 
-    var vm = this;
+    var vm        = this, //ViewModel
+        mytimeout = null; //the current timeoutID
 
-    $scope.inventoryHistory = [];
-    $scope.inventory = [];
+    vm.inventoryHistory = [];
+    vm.inventory = [];
+    vm.counter = -1;
 
-    $scope.loadInventory = loadInventory;
-    $scope.addItem = addItem;
-    $scope.removeItem = removeItem;
+    vm.loadInventory = loadInventory;
+    vm.addItem = addItem;
+    vm.removeItem = removeItem;
+    vm.startTimer = startTimer;
+    vm.onTimeout = onTimeout;
+    vm.stopTimer = stopTimer;
 
-    function addSeconds(date, seconds) {
-        date.setSeconds(date.getSeconds() + seconds);
-        return date;
-    }
+    vm.loadInventory();
 
     function loadInventory() {
         $http.get('/api/v1/item').success(function(data) {
-            $scope.inventory = data.items;
-            console.log($scope.inventory);
-            getNextExpire($scope.inventory);
-        }).error(function(response, status, headers, config){
+            vm.inventory = data.items;
+            getNextExpire(vm.inventory);
+        }).error(function(response, status, headers, config) {
             toaster.error("API ERROR")
         });
 
         $http.get('/api/v1/item/1').success(function(data) {
-            $scope.debug = data.items;
-        }).error(function(response, status, headers, config){
+            vm.debug = data.items;
+        }).error(function(response, status, headers, config) {
             toaster.error("API ERROR")
         });
 
     }
 
     function getNextExpire(obj) {
-        var next = 99999999;
-        var nextItem = {};
+        var next     = null,
+            nextItem = {};
         angular.forEach(obj, function(item, index) {
-//            console.log(index + ' - ' + item.label);
-            var expire_at = new Date(item.expire_at);
-            var diffSeconds = (expire_at - new Date()) / 1000;
-//            console.log(diffSeconds + "s");
+            var expire_at   = new Date(item.expire_at),
+                diffSeconds = (expire_at - new Date()) / 1000;
+            if( next === null ) {
+                next = diffSeconds;
+            }
             if( diffSeconds < next && diffSeconds > 0 ) {
                 next = diffSeconds;
                 nextItem = item;
             }
         });
-//        console.log("alarm in " + next + " seconds");
-        if( next !== 99999999 ) {
-            $scope.stopTimer();
-            $scope.counter = Math.round(next);
-            $scope.nextItem = nextItem;
-            $scope.startTimer();
+        vm.stopTimer();
+        if( next !== null ) {
+            vm.counter = Math.round(next);
+            vm.nextItem = nextItem;
+            vm.startTimer();
         }
     }
 
@@ -66,83 +67,71 @@ function InventoryController($scope, $http, $timeout, toaster) {
         $http.post(
             '/api/v1/item',
             {
-                'label':     $scope.label,
-                'type':      $scope.type,
+                'label':     vm.label,
+                'type':      vm.type,
                 'event':     'add',
-                'expire_at': $scope.expire_at
+                'expire_at': vm.expire_at
             }
         ).success(function(data) {
-            toaster.success("Item Added", $scope.label);
+            toaster.success("Item Added", vm.label);
         });
 
         loadInventory();
 
-        $scope.inventoryHistory.push({ "itemAdded": $scope.label });
+        vm.inventoryHistory.push({ "itemAdded": vm.label });
 
-        $scope.label = '';
-        $scope.type = '';
-        $scope.expire_at = '';
-//        console.log($scope.inventoryHistory);
+        vm.label = '';
+        vm.type = '';
+        vm.expire_at = '';
     }
 
     function removeItem(key) {
-//        toaster.pop('danger', "Item Removed", $scope.inventory[key].label);
-//        console.log($scope.inventory[key]);
-//        console.log($scope.inventoryHistory);
-
-//        delete $scope.inventory[key];
-
         $http.post(
             '/api/v1/item',
             {
-                'itemID':    $scope.inventory[key].itemID,
-                'label':     $scope.inventory[key].label,
-                'type':      $scope.inventory[key].type,
+                'itemID':    vm.inventory[key].itemID,
+                'label':     vm.inventory[key].label,
+                'type':      vm.inventory[key].type,
                 'event':     'remove',
-                'expire_at': $scope.inventory[key].expire_at
+                'expire_at': vm.inventory[key].expire_at
             }
         ).success(function(data) {
-            toaster.warning("Item Removed", $scope.inventory[key].label);
+            toaster.warning("Item Removed", vm.inventory[key].label);
         });
 
-        $scope.inventoryHistory.push({ "itemRevmoved": $scope.inventory[key] });
+        vm.inventoryHistory.push({ "itemRevmoved": vm.inventory[key] });
 
         loadInventory();
 
     }
 
-    $scope.loadInventory();
-
-    $scope.counter = -1;
-
-    var mytimeout = null; // the current timeoutID
-
     // actual timer method, counts down every second, stops on zero
-    $scope.onTimeout = function() {
-        if( $scope.counter <= 0 ) {
+    function onTimeout() {
+        if( vm.counter <= 0 ) {
             $scope.$broadcast('timer-stopped', 0);
             $timeout.cancel(mytimeout);
             return;
         }
-        $scope.counter--;
-        mytimeout = $timeout($scope.onTimeout, 1000);
-    };
+        vm.counter--;
+        mytimeout = $timeout(vm.onTimeout, 1000);
+    }
 
-    $scope.startTimer = function() {
-        mytimeout = $timeout($scope.onTimeout, 1000);
-    };
+    //start timer
+    function startTimer() {
+        mytimeout = $timeout(vm.onTimeout, 1000);
+    }
 
     // stops and resets the current timer
-    $scope.stopTimer = function() {
-//        $scope.$broadcast('timer-stopped', $scope.counter);
+    function stopTimer() {
         $timeout.cancel(mytimeout);
-    };
+        vm.counter = -1;
+    }
 
-    // triggered, when the timer stops, you can do something here, maybe show a visual indicator or vibrate the device
+    // triggered, when the timer stops
     $scope.$on('timer-stopped', function(event, remaining) {
         if( remaining <= 0 ) {
-            $scope.inventoryHistory.push({ "itemExpired": $scope.nextItem });
-            toaster.warning("Item Expired", $scope.nextItem.label);
+            vm.inventoryHistory.push({ "itemExpired": vm.nextItem });
+            toaster.warning("Item Expired", vm.nextItem.label);
             loadInventory();
         }
     });

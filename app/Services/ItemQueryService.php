@@ -34,7 +34,6 @@ class ItemQueryService {
                 unset($result[$item['itemID']]);
             }
         }
-
         //remove expired items
         foreach($result as $key=>$item) {
             if ($item->expire_at <= Carbon::now()) {
@@ -44,9 +43,6 @@ class ItemQueryService {
         return $result;
     }
 
-    public function getAllNotExpired() {
-        return $this->model->where('expire_at', '>', Carbon::now())->orderBy('created_at')->get();
-    }
 
     public function getAll() {
         return $this->model->orderBy('created_at')->get();
